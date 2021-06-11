@@ -2,12 +2,15 @@ package frc.team3388;
 
 import edu.wpi.cscore.CvSink;
 import edu.wpi.cscore.CvSource;
+import edu.wpi.cscore.MjpegServer;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.cscore.VideoMode;
 import edu.wpi.cscore.VideoSource;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.Scalar;
 
 public class Main {
 
@@ -22,6 +25,8 @@ public class Main {
         // CvSource allows us to put custom images. We'll put processed images
         try(VideoSource camera = startCamera();
             CvSink sink = new CvSink("vision-sink");
+            MjpegServer cameraServer = CameraServer.getInstance()
+                    .addSwitchedCamera("camera");
             CvSource postProcess = CameraServer.getInstance()
                     .putVideo("post-process", 320, 480)) {
             // a sink will allow us to grab frames from the camera
@@ -29,7 +34,7 @@ public class Main {
 
             // place the camera in the CameraServer. This will
             // send the image so we can view on the the dashboard.
-            CameraServer.getInstance().addServer(sink);
+            cameraServer.setSource(camera);
 
             // run a loop forever in which we'll perform some image processing.
             // we'll sleep some time between each run to let the camera update image.
@@ -49,10 +54,11 @@ public class Main {
                 // TODO: VISION CODE
                 // the image from the camera is in the Mat image
 
+
                 // place the post processed image in the second image
                 // output in CameraServer. That way we
                 // can see what happens.
-                // postProcess.putFrame(image);
+                postProcess.putFrame(image);
 
                 //noinspection BusyWait
                 Thread.sleep(5);
